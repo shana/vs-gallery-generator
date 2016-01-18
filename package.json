@@ -1,0 +1,19 @@
+{
+  "name": "vsgallery",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./test.js"
+  },
+  "dependencies": {
+    "fs": "0.0.2",
+    "github": "^0.2.4",
+    "js2xmlparser": "^1.0.0",
+    "mkdirp": "^0.5.1",
+    "node-localstorage": "^1.1.2",
+    "readline-sync": "^1.2.22",
+    "request": "^2.67.0",
+    "unzip2": "^0.2.5",
+    "xml2js": "^0.4.16"
+  }
+}
