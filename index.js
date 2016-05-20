@@ -1,3 +1,4 @@
+'use strict';
 var os = require('os');
 var fs = require('fs');
 var unzip = require('unzip2')
@@ -10,6 +11,7 @@ var github = require('./auth.js')
 var request = require('request');
 
 var eventEmitter = new events.EventEmitter();
+var RELEASE_COUNT = 8;
 
 var theFeed = {
     '@': {
@@ -77,50 +79,40 @@ eventEmitter.on('begin', function() {
         owner: "github",
         repo: "VisualStudio",
         page: 1,
-        per_page: 10
+        per_page: 20
     }, function(err, releases) {
 
-        var j = total = releaseCount = beta = 0;
-        var betaEntry;
+        var releasesList = [];
+        var total = 0;
+
         eventEmitter.on('entry', function(r, e) {
             total++;
-            if (!r.prerelease)
-                releaseCount++;
-
-            console.log(total + ':' + releaseCount + ':' + beta + ':' + releases.length);
-
-            if (total == releases.length)
-            {
-                if (betaEntry) {
-                    console.log(JSON.stringify(betaEntry));
-                    theFeed.entry.push(betaEntry);
-                    betaEntry = null;
-                }
-
+            theFeed.entry.push(e);
+            if (total == releasesList.length)
                 eventEmitter.emit('finish');
-            }
-            else if (!r.prerelease && releaseCount <= 4) {
-                console.log(JSON.stringify(e));
-                theFeed.entry.push(e);
-            }
-            else if (r.prerelease && r.id > beta) {
-                beta = r.id;
-                betaEntry = e;
-            }
         })
 
-        var latest = null;
-        for (j = 0; j < releases.length; j++)
+        var betaCount;
+        for (var j = 0; j < releases.length && releasesList.length < RELEASE_COUNT; j++)
         {
             var release = releases[j];
             if (release.draft)
                 continue;
-
-            if (!latest)
+            else if (release.prerelease)
             {
-                latest = release;
-                eventEmitter.emit('start', latest.published_at);
+                if (release.id < releases[0].id)
+                    continue;
+                if (betaCount)
+                    continue;
+                betaCount = true;
             }
+            releasesList.push(release);
+        }
+
+        eventEmitter.emit('start', releasesList[0].published_at);
+        for (var j = 0; j < releasesList.length; j++)
+        {
+            var release = releasesList[j];
 
             var path = __dirname + '/files/' + j + '/';
             var id = release.id;
@@ -133,7 +125,7 @@ eventEmitter.on('begin', function() {
             console.log();
             console.log('======================================================================');
             console.log();
-            console.log(release.body);
+            //console.log(release.body);
 
             var asset;
             for (var i = 0; i < assets.length; ++i)
