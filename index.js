@@ -46,6 +46,7 @@ eventEmitter.on('start', function(date) {
 eventEmitter.on('process', function(path, release, asset) {
     console.log();
     console.log('Processing asset ' + path + asset.name);
+/*
     var options = {
         url: asset.browser_download_url,
         headers: {
@@ -57,14 +58,20 @@ eventEmitter.on('process', function(path, release, asset) {
     .on('response', function(response) { console.log('Downloading ' + asset.browser_download_url + ' to ' + path + asset.name) })
     .pipe(fs.createWriteStream(path + asset.name))
     .on('finish', function() {
+        */
         fs
         .createReadStream(path + asset.name)
         .pipe(unzip.Parse())
         .on('entry', function(entry) { processZipEntries(path, release, asset, entry); });
-    });
+    //});
 });
 
 eventEmitter.on('finish', function() {
+    theFeed.entry.sort(function(a, b) {
+        a = new Date(a.updated);
+        b = new Date(b.updated);
+        return a>b ? -1 : a<b ? 1 : 0;
+    });
     var res = js2xml('feed', theFeed);
     var f = fs.createWriteStream(__dirname + '/files/feed.rss');
     f.write(res)
