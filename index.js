@@ -12,6 +12,7 @@ var request = require('request');
 
 var eventEmitter = new events.EventEmitter();
 var RELEASE_COUNT = 8;
+var BETA_COUNT = 1;
 
 var theFeed = {
     '@': {
@@ -46,7 +47,7 @@ eventEmitter.on('start', function(date) {
 eventEmitter.on('process', function(path, release, asset) {
     console.log();
     console.log('Processing asset ' + path + asset.name);
-/*
+
     var options = {
         url: asset.browser_download_url,
         headers: {
@@ -58,12 +59,12 @@ eventEmitter.on('process', function(path, release, asset) {
     .on('response', function(response) { console.log('Downloading ' + asset.browser_download_url + ' to ' + path + asset.name) })
     .pipe(fs.createWriteStream(path + asset.name))
     .on('finish', function() {
-        */
+
         fs
         .createReadStream(path + asset.name)
         .pipe(unzip.Parse())
         .on('entry', function(entry) { processZipEntries(path, release, asset, entry); });
-    //});
+    });
 });
 
 eventEmitter.on('finish', function() {
@@ -99,7 +100,7 @@ eventEmitter.on('begin', function() {
                 eventEmitter.emit('finish');
         })
 
-        var betaCount;
+        var betas = 0;
         for (var j = 0; j < releases.length && releasesList.length < RELEASE_COUNT; j++)
         {
             var release = releases[j];
@@ -107,11 +108,12 @@ eventEmitter.on('begin', function() {
                 continue;
             else if (release.prerelease)
             {
-                if (release.id < releases[0].id)
+                //if (release.id < releases[0].id)
+                //    continue;
+                if (++betas > BETA_COUNT)
+                {
                     continue;
-                if (betaCount)
-                    continue;
-                betaCount = true;
+                }
             }
             releasesList.push(release);
         }
