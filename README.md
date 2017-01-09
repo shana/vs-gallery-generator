@@ -1,6 +1,6 @@
 Generate a VS gallery atom feed from the releases of the VisualStudio github repo
 
-To use this:
+To use this, create a release or pre-release (beta) as normal in the VS github repo, with release notes and the vsix, and then:
 
 1. Create a personal token that can list releases and access repos
 1. Create a folder called `scratch`
