@@ -178,7 +178,7 @@ function processZipEntries(path, release, asset, entry)
                         'author': result.PackageManifest.Metadata[0].Identity[0].$.Publisher,
                         'updated_at': asset.updated_at,
                         'created_at': '2015-05-01T00:00:00-00:00',
-                        'url': asset.browser_download_url
+                        'url': "https://ghfvs-installer.github.com/releases/" + result.PackageManifest.Metadata[0].Identity[0].$.Version + "/GitHub.VisualStudio.vsix"
                     }
                     //console.log(JSON.stringify(JSON.parse(JSON.stringify(result)),null,'\t'));
 
